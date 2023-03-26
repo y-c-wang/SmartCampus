@@ -10,19 +10,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Into repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: 14
       - name: Install firebase CLI
         run: npm install -g firebase-tools
       - name: Install Packages
         run: yarn install
+      - name: Create Production Build
+        run: yarn build
       - name: Predeploy to firebase channel
-        run: yarn build && firebase hosting:channel:deploy ${{ github.ref }}
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_TOKEN }}"
+          expires: 30d
+          projectId: "smartcampus-1b31f"
+          channelId: ${{ github.ref }}
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           REACT_APP_GOOGLE_MAP_API_KEY: ${{ secrets.GOOGLE_MAP_API_KEY }}
           REACT_APP_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           REACT_APP_FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
